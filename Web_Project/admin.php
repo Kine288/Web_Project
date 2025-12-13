@@ -8,7 +8,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
     exit;
 }
 
-// 1. XỬ LÝ KHÓA / MỞ KHÓA USER
+// 1. Khóa / mở tài khoản
 if (isset($_POST['toggle_status'])) {
     $uid = $_POST['user_id'];
     $new_stt = $_POST['new_status'];
@@ -22,7 +22,7 @@ if (isset($_POST['toggle_status'])) {
     echo "<script>alert('Cập nhật trạng thái thành công!');</script>";
 }
 
-// LẤY DỮ LIỆU
+// Lấy dl
 $users = $conn->query("SELECT * FROM users")->fetch_all(MYSQLI_ASSOC);
 $logs = $conn->query("SELECT l.*, u.email FROM activity_logs l LEFT JOIN users u ON l.user_id = u.id ORDER BY l.created_at DESC LIMIT 20")->fetch_all(MYSQLI_ASSOC);
 $projects = $conn->query("SELECT * FROM projects ORDER BY created_at DESC")->fetch_all(MYSQLI_ASSOC);
@@ -126,15 +126,21 @@ $projects = $conn->query("SELECT * FROM projects ORDER BY created_at DESC")->fet
                                 </thead>
                                 <tbody>
                                     <?php
-                                    $stmt = $conn->prepare("SELECT pm.*, u.email FROM project_members pm JOIN users u ON pm.user_id = u.id WHERE pm.project_id = ?");
+                                    // Sắp xếp thành viên theo thứ tự vai trò
+                                    $stmt = $conn->prepare("
+                                        SELECT pm.*, u.email 
+                                        FROM project_members pm 
+                                        JOIN users u ON pm.user_id = u.id 
+                                        WHERE pm.project_id = ? 
+                                        ORDER BY FIELD(pm.role, 'owner', 'moderator', 'contributor', 'viewer')
+                                    ");
                                     $stmt->bind_param("i", $pj['id']);
                                     $stmt->execute();
                                     $members = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                                     
                                     if (count($members) > 0):
                                         foreach ($members as $mem):
-                                            // Xử lý màu sắc Badge
-                                            $badge_class = 'bg-secondary'; // Mặc định Viewer
+                                            $badge_class = 'bg-secondary'; // Viewer
                                             $icon = '';
                                             
                                             if ($mem['role'] == 'owner') {
@@ -143,19 +149,19 @@ $projects = $conn->query("SELECT * FROM projects ORDER BY created_at DESC")->fet
                                             } elseif ($mem['role'] == 'moderator') {
                                                 $badge_class = 'bg-primary'; // Mod màu xanh dương
                                             } elseif ($mem['role'] == 'contributor') {
-                                                $badge_class = 'bg-info text-dark'; // Contributor màu sáng
+                                                $badge_class = 'bg-info text-dark'; // Contributor
                                             }
                                     ?>
-                                        <tr>
-                                            <td class="ps-3 align-middle">
-                                                <?= $icon ?><?= htmlspecialchars($mem['email']) ?>
-                                            </td>
-                                            <td class="text-end pe-3 align-middle">
-                                                <span class="badge <?= $badge_class ?> badge-role">
-                                                    <?= ucfirst($mem['role']) ?>
-                                                </span>
-                                            </td>
-                                        </tr>
+                                            <tr>
+                                                <td class="ps-3 align-middle">
+                                                    <?= $icon ?><?= htmlspecialchars($mem['email']) ?>
+                                                </td>
+                                                <td class="text-end pe-3 align-middle">
+                                                    <span class="badge <?= $badge_class ?> badge-role">
+                                                        <?= ucfirst($mem['role']) ?>
+                                                    </span>
+                                                </td>
+                                            </tr>
                                     <?php 
                                         endforeach; 
                                     else:

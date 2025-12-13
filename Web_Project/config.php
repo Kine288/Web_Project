@@ -2,7 +2,7 @@
 $localhost = 'localhost';
 $username = 'root';
 $password = '0835072866';
-$db = 'spck';
+$db = 'k73_nhom12';
 $conn = mysqli_connect($localhost, $username, $password, $db);
 
 if(!$conn)
