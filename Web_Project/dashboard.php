@@ -705,7 +705,7 @@ $comments = $conn->query("
                             <?php if($my_role == 'owner'): ?>
                             <div class="card border-danger shadow-sm rounded-4">
                                 <div class="card-body">
-                                    <h6 class="text-danger fw-bold"><i class="fa-solid fa-triangle-exclamation me-2"></i>Vùng nguy hiểm</h6>
+                                    <h6 class="text-danger fw-bold"><i class="fa-solid fa-triangle-exclamation me-2"></i>Xóa dự án</h6>
                                     <p class="small text-muted mb-2">Xóa dự án sẽ mất toàn bộ dữ liệu.</p>
                                     <form method="POST" onsubmit="return confirm('Chắc chắn xóa?');">
                                         <input type="hidden" name="delete_project" value="1">
