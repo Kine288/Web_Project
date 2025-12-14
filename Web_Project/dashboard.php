@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['create_project'])) {
     $title = $_POST['title'];
     $desc = $_POST['description'];
 
-    $stmt = $conn->prepare("INSERT INTO projects (title, description, is_approved) VALUES (?, ?, 1)"); 
+    $stmt = $conn->prepare("INSERT INTO projects (title, description) VALUES (?, ?)"); 
     $stmt->bind_param("ss", $title, $desc);
     
     if ($stmt->execute()) {
@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['create_project'])) {
         $stmt2 = $conn->prepare("INSERT INTO project_members (user_id, project_id, role) VALUES (?, ?, 'owner')");
         $stmt2->bind_param("ii", $user_id, $new_project_id);
         $stmt2->execute();
-        logActivity($conn, $user_id, "Đã tạo dự án mới: $title");
+        logActivity($conn, $user_id, "Đã tạo dự án mới: $title (ID $new_project_id)");
         echo "<script>alert('Tạo dự án thành công!'); window.location.href='dashboard.php';</script>";
     }
 }
@@ -36,6 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['request_access'])) {
         $stmt = $conn->prepare("INSERT INTO project_requests (user_id, project_id, status) VALUES (?, ?, 'pending')");
         $stmt->bind_param("ii", $user_id, $pj_id);
         $stmt->execute();
+        logActivity($conn, $user_id, "Đã gửi yêu cầu tham gia dự án: $pj_title (ID $pj_id)");
         echo "<script>alert('Đã gửi yêu cầu! Chờ duyệt.'); window.location.href='dashboard.php';</script>";
     }
 }
@@ -74,6 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['handle_request'])) {
                     if ($stmt_add->execute()) {
                         $conn->query("UPDATE project_requests SET status = 'approved' WHERE id = $req_id");
                         logActivity($conn, $user_id, "Đã duyệt user $target_user vào dự án $target_project quyền $assigned_role");
+                        // logActivity($conn, $user_id, "Đã **duyệt** user $target_email vào dự án '$pj_title' (ID $target_project) với quyền **$assigned_role**");
                         echo "<script>alert('Đã thêm thành viên: " . ucfirst($assigned_role) . "');</script>";
                     }
                 } else {
@@ -82,6 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['handle_request'])) {
                 }
             } else {
                 $conn->query("UPDATE project_requests SET status = 'rejected' WHERE id = $req_id");
+                logActivity($conn, $user_id, "Đã **từ chối** yêu cầu tham gia dự án '$pj_title' (ID $target_project) của user $target_email.");
                 echo "<script>alert('Đã từ chối yêu cầu.');</script>";
             }
         }
@@ -114,8 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_member_direct'])) 
                 $stmt_add = $conn->prepare("INSERT INTO project_members (user_id, project_id, role) VALUES (?, ?, ?)");
                 $stmt_add->bind_param("iis", $target_uid, $pj_id, $role);
                 $stmt_add->execute();
-                logActivity($conn, $user_id, "Đã thêm trực tiếp user $email vào dự án $pj_id");
-                echo "<script>alert('Đã thêm thành viên thành công!');</script>";
+                logActivity($conn, $user_id, "Đã thêm trực tiếp user **$email** vào dự án '$pj_title' (ID $pj_id) với quyền **$role**.");                echo "<script>alert('Đã thêm thành viên thành công!');</script>";
             } else {
                 echo "<script>alert('Người dùng này đã có trong dự án!');</script>";
             }
@@ -167,6 +169,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_member_role']))
                 $stmt_update = $conn->prepare("UPDATE project_members SET role = ? WHERE user_id = ? AND project_id = ?");
                 $stmt_update->bind_param("sii", $new_role, $target_uid, $pj_id);
                 if ($stmt_update->execute()) {
+                    logActivity($conn, $user_id, "Đã cập nhật quyền user **$target_email** trong dự án '$pj_title' (ID $pj_id) từ **$old_role** thành **$new_role**.");
                     echo "<script>alert('Đã cập nhật quyền thành công!');</script>";
                 }
             } else {
@@ -187,26 +190,50 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->bind_param("ii", $user_id, $pj_id);
         $stmt->execute();
         $role_data = $stmt->get_result()->fetch_assoc();
+
+        // Lấy tên dl để ghi vào log
+        $stmt_pj_title = $conn->prepare("SELECT title FROM projects WHERE id = ?");
+        $stmt_pj_title->bind_param("i", $pj_id);
+        $stmt_pj_title->execute();
+        $pj_title = $stmt_pj_title->get_result()->fetch_assoc()['title'];
+
         if ($role_data && in_array($role_data['role'], ['owner', 'moderator', 'contributor'])) {
             $my_role = strtolower(trim($role_data['role']));
             $is_approved = ($my_role === 'owner' || $my_role === 'moderator') ? 1 : 0;
             $stmt = $conn->prepare("INSERT INTO comments (project_id, user_id, content, is_approved) VALUES (?, ?, ?, ?)");
             $stmt->bind_param("iisi", $pj_id, $user_id, $content, $is_approved);
-            $stmt->execute();
+            if ($stmt->execute()) {
+                $cmt_id = $conn->insert_id;
+                $status_log = ($is_approved == 1) ? "Đã bình luận công khai" : "Đã bình luận (**Chờ duyệt**)";
+                logActivity($conn, $user_id, "$status_log vào dự án '$pj_title' (ID $pj_id). Comment ID: $cmt_id");
+            }
         }
     }
     if (isset($_POST['approve_comment'])) {
         $cmt_id = $_POST['comment_id'];
         $pj_id = $_POST['project_id'];
+
+        // Lấy thông tin cmt để ghi vào log
+        $stmt_cmt_info = $conn->prepare("
+            SELECT u.email, p.title as pj_title 
+            FROM comments c 
+            JOIN users u ON c.user_id = u.id 
+            JOIN projects p ON c.project_id = p.id 
+            WHERE c.id = ?
+        ");
+
         $check = $conn->prepare("SELECT role FROM project_members WHERE user_id=? AND project_id=? AND role='owner'");
         $check->bind_param("ii", $user_id, $pj_id);
         $check->execute();
+
         if ($check->get_result()->num_rows > 0) {
             $stmt_up = $conn->prepare("UPDATE comments SET is_approved = 1 WHERE id = ?");
             $stmt_up->bind_param("i", $cmt_id);
-            $stmt_up->execute();
-            header("Location: dashboard.php?view_project_id=" . $pj_id);
-            exit;
+           if ($stmt_up->execute()) {
+                logActivity($conn, $user_id, "Đã **duyệt** bình luận ID $cmt_id (của user $author_email) trong dự án '$pj_title'.");
+                header("Location: dashboard.php?view_project_id=" . $pj_id);
+                exit;
+            }
         }
     }
     
@@ -268,12 +295,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt_get->bind_param("i", $cmt_id);
         $stmt_get->execute();
         $cmt = $stmt_get->get_result()->fetch_assoc();
+
+        // Lấy tên dự án để ghi vào log
+        $stmt_pj_title = $conn->prepare("SELECT title FROM projects WHERE id = ?");
+        $stmt_pj_title->bind_param("i", $cmt['project_id']);
+        $stmt_pj_title->execute();
+        $pj_title = $stmt_pj_title->get_result()->fetch_assoc()['title'];
+
         if ($cmt && $user_id == $cmt['user_id']) {
             $stmt_up = $conn->prepare("UPDATE comments SET content = ? WHERE id = ?");
             $stmt_up->bind_param("si", $new_content, $cmt_id);
-            $stmt_up->execute();
-            header("Location: dashboard.php?view_project_id=" . $cmt['project_id']);
-            exit;
+            if ($stmt_up->execute()) {
+                logActivity($conn, $user_id, "Đã **sửa** bình luận ID $cmt_id trong dự án '$pj_title' (ID {$cmt['project_id']}).");
+                header("Location: dashboard.php?view_project_id=" . $cmt['project_id']);
+                exit;
+            }
+        } else {
+            logActivity($conn, $user_id, "Thất bại: Cố gắng sửa bình luận ID $cmt_id của người khác trong dự án '$pj_title'.");
         }
     }
 }
@@ -426,9 +464,6 @@ $comments = $conn->query("
                     <span class="d-none d-sm-inline small fw-bold"><?= htmlspecialchars($_SESSION['user_email']) ?></span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
-                    <li><a class="dropdown-item small" href="#"><i class="fa-regular fa-user me-2"></i> Hồ sơ</a></li>
-                    <li><a class="dropdown-item small" href="#"><i class="fa-solid fa-gear me-2"></i> Cài đặt</a></li>
-                    <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item small text-danger" href="logout.php"><i class="fa-solid fa-right-from-bracket me-2"></i> Đăng xuất</a></li>
                 </ul>
             </div>

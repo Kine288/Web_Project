@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Dec 13, 2025 at 11:15 AM
+-- Generation Time: Dec 14, 2025 at 07:19 AM
 -- Server version: 8.4.2
 -- PHP Version: 8.1.10
 
@@ -112,7 +112,32 @@ INSERT INTO `activity_logs` (`id`, `user_id`, `action`, `created_at`) VALUES
 (73, 6, 'Đăng nhập thành công', '2025-12-13 02:50:27'),
 (74, 4, 'Đăng nhập thành công', '2025-12-13 02:56:54'),
 (75, 6, 'Đăng nhập thành công', '2025-12-13 02:57:31'),
-(76, 6, 'Đăng nhập thành công', '2025-12-13 11:10:59');
+(76, 6, 'Đăng nhập thành công', '2025-12-13 11:10:59'),
+(77, 6, 'Đăng nhập thành công', '2025-12-13 15:53:57'),
+(78, 6, 'Đã tạo dự án mới: Dự án ma', '2025-12-13 15:56:52'),
+(79, 6, 'Đã tạo dự án mới: 100 năm (ID 10)', '2025-12-13 16:46:16'),
+(80, 6, 'Đã xóa dự án ID 9', '2025-12-13 16:48:59'),
+(81, 4, 'Đăng nhập thành công', '2025-12-13 16:49:16'),
+(82, 9, 'Đăng nhập thành công', '2025-12-13 16:52:21'),
+(83, 8, 'Đăng nhập thành công', '2025-12-13 16:53:38'),
+(84, 10, 'Đã **đăng ký** tài khoản mới thành công với email: d@gmail.com', '2025-12-14 06:03:17'),
+(85, 10, 'Đăng nhập thành công', '2025-12-14 06:03:24'),
+(86, 10, 'Đã tạo dự án mới: Web Project (ID 11)', '2025-12-14 06:04:04'),
+(87, 10, 'Đã gửi yêu cầu tham gia dự án:  (ID 5)', '2025-12-14 06:04:18'),
+(88, 6, 'Đăng nhập thành công', '2025-12-14 06:04:26'),
+(89, 6, 'Đã duyệt user 10 vào dự án 5 quyền contributor', '2025-12-14 06:04:30'),
+(90, 6, 'Đã **duyệt** user  vào dự án \'\' (ID 5) với quyền **contributor**', '2025-12-14 06:04:30'),
+(91, 6, 'Đã gửi yêu cầu tham gia dự án:  (ID 11)', '2025-12-14 06:07:04'),
+(92, 10, 'Đăng nhập thành công', '2025-12-14 06:07:11'),
+(93, 10, 'Đã tạo dự án mới: Dự án 2 Web (ID 12)', '2025-12-14 06:07:41'),
+(94, 9, 'Đăng nhập thành công', '2025-12-14 06:08:06'),
+(95, 9, 'Đã gửi yêu cầu tham gia dự án:  (ID 11)', '2025-12-14 06:08:17'),
+(96, 9, 'Đã gửi yêu cầu tham gia dự án:  (ID 12)', '2025-12-14 06:08:19'),
+(97, 4, 'Đăng nhập thành công', '2025-12-14 06:11:02'),
+(98, 6, 'Đăng nhập thành công', '2025-12-14 06:18:46'),
+(99, 11, 'Đã **đăng ký** tài khoản mới thành công với email: loctg05@gmail.com', '2025-12-14 06:20:35'),
+(100, 11, 'Đăng nhập thành công', '2025-12-14 06:20:39'),
+(101, 11, 'Đã tạo dự án mới: Dự án phát triển Web (ID 13)', '2025-12-14 06:21:08');
 
 -- --------------------------------------------------------
 
@@ -173,7 +198,11 @@ INSERT INTO `projects` (`id`, `title`, `description`, `created_at`) VALUES
 (3, 'dự án mới để cmt', 'hihi', '2025-12-09 13:38:31'),
 (4, 'dự án ', 'hihihaha', '2025-12-09 13:53:56'),
 (5, '1@', '1@', '2025-12-11 03:22:27'),
-(8, 'a', 'a', '2025-12-12 10:25:19');
+(8, 'a', 'a', '2025-12-12 10:25:19'),
+(10, '100 năm', 'Phát triển thị trường', '2025-12-13 16:46:16'),
+(11, 'Web Project', 'Học PHP nâng cao\r\n', '2025-12-14 06:04:04'),
+(12, 'Dự án 2 Web', 'CSDL trong PHP\r\n', '2025-12-14 06:07:41'),
+(13, 'Dự án phát triển Web', 'Thực hiện bởi K73', '2025-12-14 06:21:08');
 
 -- --------------------------------------------------------
 
@@ -197,10 +226,15 @@ INSERT INTO `project_members` (`user_id`, `project_id`, `role`) VALUES
 (6, 3, 'moderator'),
 (6, 5, 'owner'),
 (6, 8, 'moderator'),
+(6, 10, 'owner'),
 (7, 5, 'contributor'),
 (8, 5, 'moderator'),
 (9, 5, 'contributor'),
-(9, 8, 'owner');
+(9, 8, 'owner'),
+(10, 5, 'contributor'),
+(10, 11, 'owner'),
+(10, 12, 'owner'),
+(11, 13, 'owner');
 
 -- --------------------------------------------------------
 
@@ -226,7 +260,11 @@ INSERT INTO `project_requests` (`id`, `user_id`, `project_id`, `status`, `create
 (4, 8, 5, 'approved', '2025-12-12 08:26:50'),
 (5, 6, 3, 'approved', '2025-12-12 08:43:46'),
 (6, 9, 5, 'approved', '2025-12-12 09:55:57'),
-(7, 7, 4, 'pending', '2025-12-12 10:55:19');
+(7, 7, 4, 'pending', '2025-12-12 10:55:19'),
+(8, 10, 5, 'approved', '2025-12-14 06:04:18'),
+(9, 6, 11, 'pending', '2025-12-14 06:07:04'),
+(10, 9, 11, 'pending', '2025-12-14 06:08:17'),
+(11, 9, 12, 'pending', '2025-12-14 06:08:19');
 
 -- --------------------------------------------------------
 
@@ -254,7 +292,9 @@ INSERT INTO `users` (`id`, `email`, `password`, `registered_at`, `role`, `status
 (6, '1@gmail.com', '$2y$10$7gQHS87/yZzUikWOhZvOr.Zj3tgwauo8Pgjg2awdiade4spnusk.m', '2025-12-11 03:15:14', 'user', 1),
 (7, 'loc@gmail.com', '$2y$10$2dfG8r.GzY08RAt0N0BxXOonF/I5u8X26jOxN1w/x0mHRFkqvgHGm', '2025-12-12 08:03:59', 'user', 1),
 (8, '2@gmail.com', '$2y$10$umn9nhyJWynXpWzp79x9Fu9Uxv1HzBvIJemt/JgYXyEbGCBvVGuSW', '2025-12-12 08:26:43', 'user', 1),
-(9, 'c@gmail.com', '$2y$10$.qWiGFVbpWyYpkr1hW7PUu5kfNPqW78C8qDfR.RP4mSo4p9yfglhG', '2025-12-12 09:55:41', 'user', 1);
+(9, 'c@gmail.com', '$2y$10$.qWiGFVbpWyYpkr1hW7PUu5kfNPqW78C8qDfR.RP4mSo4p9yfglhG', '2025-12-12 09:55:41', 'user', 1),
+(10, 'd@gmail.com', '$2y$10$haKSwktVNX7G/iog3ScijuNjYGCnTrljQzh9SZd9Ls19T1f/1X1ta', '2025-12-14 06:03:17', 'user', 1),
+(11, 'loctg05@gmail.com', '$2y$10$jBg7gwrp9G8PPtC16jpjtOBwmIiBS9cfnjZd2yobfbgQ6jW/TjrKy', '2025-12-14 06:20:35', 'user', 1);
 
 --
 -- Indexes for dumped tables
@@ -311,7 +351,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `activity_logs`
 --
 ALTER TABLE `activity_logs`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=77;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=102;
 
 --
 -- AUTO_INCREMENT for table `comments`
@@ -323,19 +363,19 @@ ALTER TABLE `comments`
 -- AUTO_INCREMENT for table `projects`
 --
 ALTER TABLE `projects`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `project_requests`
 --
 ALTER TABLE `project_requests`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- Constraints for dumped tables
@@ -351,7 +391,7 @@ ALTER TABLE `activity_logs`
 -- Constraints for table `comments`
 --
 ALTER TABLE `comments`
-  ADD CONSTRAINT `comments_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`),
+  ADD CONSTRAINT `comments_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `comments_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 
 --
@@ -359,7 +399,7 @@ ALTER TABLE `comments`
 --
 ALTER TABLE `project_members`
   ADD CONSTRAINT `project_members_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
-  ADD CONSTRAINT `project_members_ibfk_2` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`);
+  ADD CONSTRAINT `project_members_ibfk_2` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `project_requests`

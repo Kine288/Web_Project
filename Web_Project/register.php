@@ -31,6 +31,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $stmt->bind_param("ss", $email, $hashed_password);
 
             if ($stmt->execute()) {
+                $new_user_id = $conn->insert_id;
+                
+                // Ghi log người dùng tự đăng ký (ghi id)
+                logActivity($conn, $new_user_id, "Đã **đăng ký** tài khoản mới thành công với email: $email");
+
                 echo "<script>
                     alert('Đăng ký thành công!');
                     window.location.href = 'login.php';
