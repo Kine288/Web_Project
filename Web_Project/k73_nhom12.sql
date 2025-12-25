@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Dec 14, 2025 at 07:19 AM
+-- Generation Time: Dec 25, 2025 at 03:48 AM
 -- Server version: 8.4.2
 -- PHP Version: 8.1.10
 
@@ -137,7 +137,10 @@ INSERT INTO `activity_logs` (`id`, `user_id`, `action`, `created_at`) VALUES
 (98, 6, 'Đăng nhập thành công', '2025-12-14 06:18:46'),
 (99, 11, 'Đã **đăng ký** tài khoản mới thành công với email: loctg05@gmail.com', '2025-12-14 06:20:35'),
 (100, 11, 'Đăng nhập thành công', '2025-12-14 06:20:39'),
-(101, 11, 'Đã tạo dự án mới: Dự án phát triển Web (ID 13)', '2025-12-14 06:21:08');
+(101, 11, 'Đã tạo dự án mới: Dự án phát triển Web (ID 13)', '2025-12-14 06:21:08'),
+(102, 6, 'Đăng nhập thành công', '2025-12-25 03:37:42'),
+(103, 6, 'Đã thêm trực tiếp user **loctg05@gmail.com** vào dự án \'\' (ID 10) với quyền **contributor**.', '2025-12-25 03:39:38'),
+(104, 6, 'Đã tạo dự án mới: Loc (ID 14)', '2025-12-25 03:41:25');
 
 -- --------------------------------------------------------
 
@@ -202,7 +205,8 @@ INSERT INTO `projects` (`id`, `title`, `description`, `created_at`) VALUES
 (10, '100 năm', 'Phát triển thị trường', '2025-12-13 16:46:16'),
 (11, 'Web Project', 'Học PHP nâng cao\r\n', '2025-12-14 06:04:04'),
 (12, 'Dự án 2 Web', 'CSDL trong PHP\r\n', '2025-12-14 06:07:41'),
-(13, 'Dự án phát triển Web', 'Thực hiện bởi K73', '2025-12-14 06:21:08');
+(13, 'Dự án phát triển Web', 'Thực hiện bởi K73', '2025-12-14 06:21:08'),
+(14, 'Loc', '123', '2025-12-25 03:41:25');
 
 -- --------------------------------------------------------
 
@@ -227,6 +231,7 @@ INSERT INTO `project_members` (`user_id`, `project_id`, `role`) VALUES
 (6, 5, 'owner'),
 (6, 8, 'moderator'),
 (6, 10, 'owner'),
+(6, 14, 'owner'),
 (7, 5, 'contributor'),
 (8, 5, 'moderator'),
 (9, 5, 'contributor'),
@@ -234,6 +239,7 @@ INSERT INTO `project_members` (`user_id`, `project_id`, `role`) VALUES
 (10, 5, 'contributor'),
 (10, 11, 'owner'),
 (10, 12, 'owner'),
+(11, 10, 'contributor'),
 (11, 13, 'owner');
 
 -- --------------------------------------------------------
@@ -351,7 +357,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `activity_logs`
 --
 ALTER TABLE `activity_logs`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=102;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=105;
 
 --
 -- AUTO_INCREMENT for table `comments`
@@ -363,7 +369,7 @@ ALTER TABLE `comments`
 -- AUTO_INCREMENT for table `projects`
 --
 ALTER TABLE `projects`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `project_requests`
